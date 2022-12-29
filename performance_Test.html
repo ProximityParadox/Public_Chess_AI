@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="css/chessboard-1.0.0.min.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="js/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
+
+</head>
+<body>
+<script>
+
+var chess = new Chess()
+
+function depthtimetest(depth){
+  if(depth <= 0){
+    return 1
+  }
+  let moves = chess.moves()
+  let numberposition = 0
+
+  moves.forEach(element => {
+    chess.move(element)
+    numberposition = numberposition + depthtimetest((depth-1))
+    chess.undo()
+  });
+  return numberposition
+}
+
+
+let pre_test = Date.now()/1000
+console.log("total of " + depthtimetest(3) + " positions")
+let post_test = Date.now()/1000
+
+console.log("it took a total of " + (post_test-pre_test) + " seconds")
+
+
+</script>
+</body>
+</html>
