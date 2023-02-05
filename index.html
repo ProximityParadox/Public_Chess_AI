@@ -13,11 +13,7 @@
 		<div id="myBoard" style="width: 400px"></div>
 
 		<script>
-const pawn_value = 1
-const knight_value = 3
-const bishop_value = 3
-const rook_value = 5
-const queen_value = 9
+
 			
 var board = null
 var chess = new Chess()
@@ -45,7 +41,7 @@ function onDragStart (source, piece) {
   if (chess.game_over()) return false
 
   // or if it's not that side's turn
-  if (piece.search(/^b/) !== -1) return false
+  //if (piece.search(/^b/) !== -1) return false
 
   //if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
   //    (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
@@ -123,45 +119,19 @@ var config = {
 }
 var board = Chessboard('myBoard', config)
 
-
-
-var total_positions = 0
-
-function DepthTimeTest(depth){
-
-  if(depth == 0){
+function depthtimetest(depth){
+  if(depth <= 0){
     return 1
   }
-  else{
+  let moves = chess.generate_moves()
+  let numberposition = 0
 
-
-//    console.log(chess.turn())
-let possiblemoves = chess.moves()
-
-
-
-  testmove(possiblemoves, depth)
-
-
-  //return total_positions
-  }
-
-
+for(let i=0; i<moves.length; i++){
+    chess.move(moves[i])
+    numberposition = numberposition + depthtimetest((depth-1))
+    chess.undo()
 }
-
-function testmove(possiblemoves, depth){
-
-possiblemoves.forEach(element => {
-  chess.move(element)
-  depth = depth-1
- DepthTimeTest(depth)
-  depth++
-  chess.undo()
-total_positions++
-});
-
-console.log(total_positions)
-
+  return numberposition
 }
 
 function calltest(input){
@@ -171,31 +141,10 @@ console.log(result)
 }
 
 
-//DepthTimeTest(2)
-
-calltest(2)
-
-
-
-function depthtimetest(depth){
-  if(depth == 0){
-    return 1
-  }
-  let moves = chess.moves()
-  let numberposition = 0
-
-  moves.forEach(element => {
-    chess.move(element)
-    numberposition = numberposition + depthtimetest((depth-1))
-    chess.undo()
-  });
-  return numberposition
-}
-
 
 let pre_test = Date.now()/1000
 
-console.log("total of " + depthtimetest(3) + " positions")
+console.log("total of " + depthtimetest(2) + " positions")
 
 let post_test = Date.now()/1000
 

@@ -9,37 +9,152 @@
     <link rel="stylesheet" href="css/chessboard-1.0.0.min.css">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="js/chessboard-1.0.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
+    <script src="./chess.js"></script>
 
 </head>
 <body>
 <script>
 
-var chess = new Chess()
+const pawn_value = 1
+const knight_value = 3
+const bishop_value = 3
+const rook_value = 5
+const queen_value = 9
+const king_value = 9999
 
-function depthtimetest(depth){
-  if(depth <= 0){
-    return 1
+var bestEval = Number.NEGATIVE_INFINITY
+
+
+var chess = new Chess(
+'r1k4r/p2nb1p1/2b4p/1r1n1r2/2RP4/3Q1NB1/1P3PPP/R5K1 b - - 0 19'
+)
+
+//var currentsecondmove = 0
+//var currentsecondeval = 0
+//var test = []
+//var bestmove = {firstmove: chess.fen(), secondmove: 0, thirdmove: 0, firstmoveeval: evaluate(), secondmoveeval: 0, thirdmoveeval: 999}
+
+function depthevaluation(depth){
+  if(depth == 0){
+    return evaluate()
   }
-  let moves = chess.moves()
-  let numberposition = 0
 
-  moves.forEach(element => {
-    chess.move(element)
-    numberposition = numberposition + depthtimetest((depth-1))
+  let moves = chess.generate_moves()
+
+
+  for(let i=0; i<moves.length; i++){
+      chess.move(moves[i])
+    var evaluation = -depthevaluation(depth-1)
+
+
+        if( evaluation > bestEval ){
+          console.log(evaluation)
+          bestEval = evaluation
+          console.log(chess.fen())
+        }
+    
     chess.undo()
-  });
-  return numberposition
+    
+    
+    }
+    return bestEval
 }
 
 
+
+//todo: actually implement the search algorithm
+
+function count_number_of(piece){
+ascii = chess.ascii()
+
+post_edit = ascii.replaceAll(piece, "")
+return ascii.length-post_edit.length
+}
+
+function evaluate(){
+  let w_mat_val = 0
+  let b_mat_val = 0
+  
+  // calculate white material
+  w_mat_val = w_mat_val + (count_number_of("p") * pawn_value)
+  w_mat_val = w_mat_val + (count_number_of("r") * rook_value)
+  w_mat_val = w_mat_val + ((count_number_of("b")-1) * bishop_value) //-1 is necessary here becouse without it, the game will count one too many white bishops, since it cannot distinguish between the board and the edge liner A - B - C - D - E - F - G.
+  w_mat_val = w_mat_val + (count_number_of("n") * knight_value)
+  w_mat_val = w_mat_val + (count_number_of("q") * queen_value)
+  w_mat_val = w_mat_val + (count_number_of("k") * king_value)
+
+  // calculate black material
+  b_mat_val = b_mat_val + (count_number_of("P") * pawn_value)
+  b_mat_val = b_mat_val + (count_number_of("R") * rook_value)
+  b_mat_val = b_mat_val + (count_number_of("B") * bishop_value)
+  b_mat_val = b_mat_val + (count_number_of("N") * knight_value)
+  b_mat_val = b_mat_val + (count_number_of("Q") * queen_value)
+  b_mat_val = b_mat_val + (count_number_of("K") * king_value)
+
+  if(chess.turn() == "w"){
+  return (w_mat_val-b_mat_val)
+}
+  if(chess.turn() == "b"){
+    return ((w_mat_val-b_mat_val)*(-1))
+  }
+}
+
 let pre_test = Date.now()/1000
-console.log("total of " + depthtimetest(3) + " positions")
+
+//console.log(chess.ascii())
+
+//console.log(evaluate())
+console.log(depthevaluation(3))
+
+//console.log("board valuation is " + evaluate() + " (plus is in favour of white, negative in favour of black)")
+
+
+//console.log("the computer estimates a material value of " + evaluate())
+
+//console.log("in total depth of " + depthevaluation(3) + " positions")
 let post_test = Date.now()/1000
 
 console.log("it took a total of " + (post_test-pre_test) + " seconds")
 
 
+
+
+
+
+//if(chess.in_draw() == "true"){
+//  return 0
+//}
+//if(chess.game_over() == "true"){
+//  return Number.NEGATIVE_INFINITY
+//}
+
+
+
+
+//if((depth % 2 === 0)){
+//  //console.log(chess.ascii())
+// currentsecondeval = evaluate()
+//
+// if(currentsecondeval > bestmove.secondmoveeval){
+//  bestmove.secondmove = chess.fen()
+//  bestmove.secondmoveeval = evaluate()
+// }
+//
+//  }
+//  else{
+//    chess.load(bestmove.secondmove)
+//    if(evaluate()<bestmove.thirdmoveeval){
+//
+//
+//      bestmove.thirdmoveeval = evaluate()
+//      bestmove.thirdmove = chess.fen()
+//    }
+//  }
+
+
+
 </script>
 </body>
 </html>
+
+
