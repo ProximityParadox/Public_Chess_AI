@@ -22,11 +22,10 @@ const rook_value = 5
 const queen_value = 9
 const king_value = 9999
 
-var bestEval = Number.NEGATIVE_INFINITY
 
 
 var chess = new Chess(
-'r1k4r/p2nb1p1/2b4p/1r1n1r2/2RP4/3Q1NB1/1P3PPP/R5K1 b - - 0 19'
+'kp6/pp6/8/8/3R1q2/4P3/6PP/6PK b - - 0 1'
 )
 
 //var currentsecondmove = 0
@@ -34,7 +33,7 @@ var chess = new Chess(
 //var test = []
 //var bestmove = {firstmove: chess.fen(), secondmove: 0, thirdmove: 0, firstmoveeval: evaluate(), secondmoveeval: 0, thirdmoveeval: 999}
 
-function depthevaluation(depth){
+function depthevaluation(depth, maximizing_player){
   if(depth == 0){
     return evaluate()
   }
@@ -42,23 +41,42 @@ function depthevaluation(depth){
   let moves = chess.generate_moves()
 
 
-  for(let i=0; i<moves.length; i++){
+  if(maximizing_player === "true"){
+
+    maxeval = Number.NEGATIVE_INFINITY
+
+    for(let i=0; i!=moves.length; i++){
+          
       chess.move(moves[i])
-    var evaluation = -depthevaluation(depth-1)
+      evaluation = depthevaluation((depth-1), "false")
 
-
-        if( evaluation > bestEval ){
-          console.log(evaluation)
-          bestEval = evaluation
-          console.log(chess.fen())
-        }
-    
-    chess.undo()
-    
-    
+      if(evaluation>maxeval){
+        maxeval = evaluation
+        console.log(chess.history({ verbose: true }))
+      }
+      chess.undo()
     }
-    return bestEval
-}
+
+        return maxeval
+      }
+
+  else{
+    mineval = Number.POSITIVE_INFINITY
+    
+    for(let i=0; i!=moves.length; i++){
+      
+      chess.move(moves[i])
+      evaluation = depthevaluation((depth-1), "true")
+
+      if(evaluation<mineval){
+        mineval = evaluation
+        console.log(chess.history({ verbose: true }))
+      }     
+       chess.undo()
+    }
+  
+  return mineval}
+  }
 
 
 
@@ -104,7 +122,7 @@ let pre_test = Date.now()/1000
 //console.log(chess.ascii())
 
 //console.log(evaluate())
-console.log(depthevaluation(3))
+console.log(depthevaluation(4, "true"))
 
 //console.log("board valuation is " + evaluate() + " (plus is in favour of white, negative in favour of black)")
 
