@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="css/chessboard-1.0.0.min.css">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="js/chessboard-1.0.0.min.js"></script>
-    <script src="./chess.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
+    <!--<script src="./chess.js"></script>-->
 
 </head>
 <body>
@@ -37,26 +38,22 @@ function depthevaluation(depth, maximizing_player){
   if(depth == 0){
     return evaluate()
   }
-
   let moves = chess.generate_moves()
-
-
   if(maximizing_player === "true"){
 
     maxeval = Number.NEGATIVE_INFINITY
 
     for(let i=0; i!=moves.length; i++){
-          
       chess.move(moves[i])
       evaluation = depthevaluation((depth-1), "false")
 
       if(evaluation>maxeval){
         maxeval = evaluation
-        console.log(chess.history({ verbose: true }))
+        console.log(chess.ascii())
+        console.log(evaluate())
       }
       chess.undo()
     }
-
         return maxeval
       }
 
@@ -64,19 +61,44 @@ function depthevaluation(depth, maximizing_player){
     mineval = Number.POSITIVE_INFINITY
     
     for(let i=0; i!=moves.length; i++){
-      
       chess.move(moves[i])
       evaluation = depthevaluation((depth-1), "true")
 
       if(evaluation<mineval){
         mineval = evaluation
-        console.log(chess.history({ verbose: true }))
+        console.log(chess.ascii())
+        console.log(evaluate())
       }     
        chess.undo()
     }
   
   return mineval}
   }
+
+
+
+  function negamax(depth){
+    if(depth == 0){
+      return evaluate()
+    }
+    let moves = chess.moves()
+
+    let max = Number.NEGATIVE_INFINITY
+    for(let i=0; i!=moves.length; i++){
+      chess.move(moves[i])
+      score = -negamax(depth-1)
+      if(score>max){
+        max = score
+        console.log(chess.ascii())
+        console.log("current eval is " + evaluate())
+        console.log(chess.history())
+        console.log("current depth is " + depth)
+      }
+      chess.undo()
+    }
+    return max
+  }
+
 
 
 
@@ -94,26 +116,37 @@ function evaluate(){
   let b_mat_val = 0
   
   // calculate white material
-  w_mat_val = w_mat_val + (count_number_of("p") * pawn_value)
-  w_mat_val = w_mat_val + (count_number_of("r") * rook_value)
-  w_mat_val = w_mat_val + ((count_number_of("b")-1) * bishop_value) //-1 is necessary here becouse without it, the game will count one too many white bishops, since it cannot distinguish between the board and the edge liner A - B - C - D - E - F - G.
-  w_mat_val = w_mat_val + (count_number_of("n") * knight_value)
-  w_mat_val = w_mat_val + (count_number_of("q") * queen_value)
-  w_mat_val = w_mat_val + (count_number_of("k") * king_value)
+  w_mat_val = w_mat_val + (count_number_of("P") * pawn_value)
+  w_mat_val = w_mat_val + (count_number_of("R") * rook_value)
+  w_mat_val = w_mat_val + (count_number_of("B") * bishop_value) 
+  w_mat_val = w_mat_val + (count_number_of("N") * knight_value)
+  w_mat_val = w_mat_val + (count_number_of("Q") * queen_value)
+  w_mat_val = w_mat_val + (count_number_of("K") * king_value)
 
   // calculate black material
-  b_mat_val = b_mat_val + (count_number_of("P") * pawn_value)
-  b_mat_val = b_mat_val + (count_number_of("R") * rook_value)
-  b_mat_val = b_mat_val + (count_number_of("B") * bishop_value)
-  b_mat_val = b_mat_val + (count_number_of("N") * knight_value)
-  b_mat_val = b_mat_val + (count_number_of("Q") * queen_value)
-  b_mat_val = b_mat_val + (count_number_of("K") * king_value)
+  b_mat_val = b_mat_val + (count_number_of("p") * pawn_value)
+  b_mat_val = b_mat_val + (count_number_of("r") * rook_value)
+  b_mat_val = b_mat_val + ((count_number_of("b")-1) * bishop_value)//-1 is necessary here becouse without it, the game will count one too many white bishops, since it cannot distinguish between the board and the edge liner A - B - C - D - E - F - G.
+  b_mat_val = b_mat_val + (count_number_of("n") * knight_value)
+  b_mat_val = b_mat_val + (count_number_of("q") * queen_value)
+  b_mat_val = b_mat_val + (count_number_of("k") * king_value)
+
+//console.log(w_mat_val)
+//console.log(b_mat_val)
+
+//console.log(w_mat_val-b_mat_val)
+//console.log((b_mat_val-w_mat_val) * (-1))
+
+
+//return(w_mat_val-b_mat_val)
 
   if(chess.turn() == "w"){
   return (w_mat_val-b_mat_val)
+  console.log(w_mat_val-b_mat_val)
 }
   if(chess.turn() == "b"){
     return ((w_mat_val-b_mat_val)*(-1))
+    console.log((b_mat_val-w_mat_val) * (-1))
   }
 }
 
@@ -122,7 +155,12 @@ let pre_test = Date.now()/1000
 //console.log(chess.ascii())
 
 //console.log(evaluate())
-console.log(depthevaluation(4, "true"))
+//console.log(depthevaluation(3, "true"))
+
+
+
+//console.log(negamax(2))
+
 
 //console.log("board valuation is " + evaluate() + " (plus is in favour of white, negative in favour of black)")
 
