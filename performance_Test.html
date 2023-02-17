@@ -10,12 +10,14 @@
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="js/chessboard-1.0.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
-    <!--<script src="./chess.js"></script>-->
+    <script src="./chess.js"></script>
 
 </head>
 <body>
 <script>
 
+
+//defines value of each piece
 const pawn_value = 1
 const knight_value = 3
 const bishop_value = 3
@@ -24,28 +26,37 @@ const queen_value = 9
 const king_value = 9999
 
 
-
+//Starting test positon
 var chess = new Chess(
 'kp6/pp6/8/8/3R1q2/4P3/6PP/6PK b - - 0 1'
 )
 
+// saved for later use if i want to attempt to redo the search algoritm with objects
 //var currentsecondmove = 0
 //var currentsecondeval = 0
 //var test = []
 //var bestmove = {firstmove: chess.fen(), secondmove: 0, thirdmove: 0, firstmoveeval: evaluate(), secondmoveeval: 0, thirdmoveeval: 999}
 
-function depthevaluation(depth, maximizing_player){
+
+//chess algorithm that should return best possible moves for both players
+function minimax(depth, maximizing_player){
+  
+  //if depth of 0 has been reached (thus is not allowed to search 1 ply deper) then we return the current board state.
   if(depth == 0){
     return evaluate()
   }
+
+  //generate all possible moves
   let moves = chess.generate_moves()
+
+  //if its the maximing player in the minimax algorithms turn
   if(maximizing_player === "true"){
 
     maxeval = Number.NEGATIVE_INFINITY
-
+//for all moves make the move, check if its better than maxeval, if it is save it, and then undo
     for(let i=0; i!=moves.length; i++){
       chess.move(moves[i])
-      evaluation = depthevaluation((depth-1), "false")
+      evaluation = minimax((depth-1), "false")
 
       if(evaluation>maxeval){
         maxeval = evaluation
@@ -54,15 +65,18 @@ function depthevaluation(depth, maximizing_player){
       }
       chess.undo()
     }
+    //return the best possible eval
         return maxeval
       }
+  //if its the minimizing player in the minimax algorithms turn
 
   else{
     mineval = Number.POSITIVE_INFINITY
-    
+    //for all moves make the move, check if its better than mineval, if it is save it, and then undo
+
     for(let i=0; i!=moves.length; i++){
       chess.move(moves[i])
-      evaluation = depthevaluation((depth-1), "true")
+      evaluation = minimax((depth-1), "true")
 
       if(evaluation<mineval){
         mineval = evaluation
@@ -71,18 +85,19 @@ function depthevaluation(depth, maximizing_player){
       }     
        chess.undo()
     }
-  
+      //return the best possible eval
+
   return mineval}
   }
 
 
-
-  function negamax(depth){
+//chess algorithm that should return best possible moves for both players
+function negamax(depth){
     if(depth == 0){
       return evaluate()
     }
     let moves = chess.moves()
-
+//its just the same thing as minimax
     let max = Number.NEGATIVE_INFINITY
     for(let i=0; i!=moves.length; i++){
       chess.move(moves[i])
@@ -104,6 +119,9 @@ function depthevaluation(depth, maximizing_player){
 
 //todo: actually implement the search algorithm
 
+
+
+// counts number of pieces by removing all instances of it from a ascii version of board and then comparing string length before and after
 function count_number_of(piece){
 ascii = chess.ascii()
 
@@ -111,6 +129,7 @@ post_edit = ascii.replaceAll(piece, "")
 return ascii.length-post_edit.length
 }
 
+//evaluates the board, plus is better for white, minus for black
 function evaluate(){
   let w_mat_val = 0
   let b_mat_val = 0
@@ -140,6 +159,9 @@ function evaluate(){
 
 //return(w_mat_val-b_mat_val)
 
+
+
+// slight bit of trickery necessary for negamax to work
   if(chess.turn() == "w"){
   return (w_mat_val-b_mat_val)
   console.log(w_mat_val-b_mat_val)
@@ -159,15 +181,9 @@ let pre_test = Date.now()/1000
 
 
 
-//console.log(negamax(2))
+console.log("board valuation is " + evaluate() + " (plus is in favour of white, negative in favour of black)")
 
 
-//console.log("board valuation is " + evaluate() + " (plus is in favour of white, negative in favour of black)")
-
-
-//console.log("the computer estimates a material value of " + evaluate())
-
-//console.log("in total depth of " + depthevaluation(3) + " positions")
 let post_test = Date.now()/1000
 
 console.log("it took a total of " + (post_test-pre_test) + " seconds")
@@ -177,13 +193,20 @@ console.log("it took a total of " + (post_test-pre_test) + " seconds")
 
 
 
-//if(chess.in_draw() == "true"){
-//  return 0
-//}
-//if(chess.game_over() == "true"){
-//  return Number.NEGATIVE_INFINITY
-//}
 
+
+
+
+
+
+
+
+
+
+
+
+
+// saved for later use
 
 
 
